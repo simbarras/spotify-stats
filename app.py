@@ -4,7 +4,7 @@ import requests
 from requests.structures import CaseInsensitiveDict
 import sys
 
-SAMPLE = 1000
+SAMPLE = 10000000
 URL = 'https://api.spotify.com'
 ENDPOINT = '/v1/me/'
 GET_DEVICES = URL+ENDPOINT+"player/devices"
@@ -93,24 +93,26 @@ def run():
     for i in range(SAMPLE):
         # off shuffle play
         request(SET_SHUFFLE_OFF+device_id, PUT)
+        time.sleep(0.1)
 
         # on shuffle play
         request(SET_SHUFFLE_ON+device_id, PUT)
+        time.sleep(0.1)
 
         # next song
         request(NEXT, POST)
 
-        time.sleep(0.1)
+        time.sleep(1)
 
         # get current song
         current_song = request(GET_SONG).json()
 
         # wait if song has not changed
-        while 10 > current_song['progress_ms'] or current_song['progress_ms'] > 1000:
-            time.sleep(0.05)
+        while 1000 > current_song['progress_ms'] or current_song['progress_ms'] > 2000:
+            time.sleep(0.1)
             current_song = request(GET_SONG).json()
             print(current_song['progress_ms'])
-            if current_song['progress_ms'] > 3000:
+            if current_song['progress_ms'] > 5000:
                 print("Song has changed")
                 break
 
@@ -123,6 +125,10 @@ def run():
         print(str(i) + ": " + track + " -> " + str(popularity))
 
         time.sleep(0.1)
+        if i % 50 == 0:
+            print("Saving result")
+            publish_result()
+            time.sleep(50)
 
 
 def publish_result():
@@ -145,6 +151,8 @@ def main(reload=False):
         run()
     except KeyboardInterrupt:
         print("Interrupted by user")
+    except Exception as err:
+        print(f"Unexpected {err=}, {type(err)=}")
     finally:
         publish_result()
 
