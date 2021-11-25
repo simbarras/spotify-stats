@@ -37,7 +37,7 @@ def request(path, method='GET'):
     elif method == 'PUT':
         resp = requests.put(path, headers=header)
 
-    if resp.status_code // 10 != 20:
+    if resp.status_code // 100 != 2:
         print(path)
         print(resp.status_code)
         print(resp.headers)
@@ -56,6 +56,7 @@ def add_entry(track, popularity):
         song["read"].append(0)
     finally:
         song["read"][index] += 1
+        song["popularity"][index] = popularity
 
 
 def initialize(reload):
@@ -63,7 +64,7 @@ def initialize(reload):
 
     # reload previous data
     if reload:
-        with open('result.json', 'r') as json_file:
+        with open('result.json', 'r', encoding="utf-8") as json_file:
             song = json.load(json_file)
 
     # open token file
@@ -133,14 +134,16 @@ def run():
 
 def publish_result():
     print(song)
-    with open('result.json', 'w') as f:
+    with open('result.json', 'w', encoding="utf-8") as f:
+        # f.write(u'\ufeff')
         json.dump(song, f)
 
     csv_lines = ["Track;Popularity;Read"]
     for i in range(len(song['track'])):
         csv_lines.append(song['track'][i]+";"+str(song['popularity'][i])+";"+str(song['read'][i]))
 
-    with open('result.csv', 'w') as csvfile:
+    with open('result.csv', 'w', encoding="utf-8") as csvfile:
+        csvfile.write(u'\ufeff')
         for line in csv_lines:
             csvfile.write(line+"\n")
 
