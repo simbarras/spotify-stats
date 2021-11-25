@@ -126,7 +126,7 @@ def run():
         print(str(i) + ": " + track + " -> " + str(popularity))
 
         time.sleep(0.1)
-        if i % 50 == 0:
+        if i % 50 == 49:
             print("Saving result")
             publish_result()
             time.sleep(50)
